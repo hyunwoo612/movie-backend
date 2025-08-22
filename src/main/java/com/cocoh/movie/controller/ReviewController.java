@@ -5,6 +5,7 @@ import com.cocoh.movie.dto.*;
 import com.cocoh.movie.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,11 +25,11 @@ public class ReviewController {
 
     @Operation(summary = "특정 영화의 특정 리뷰 조회", description = "movieId와 reviewId를 이용하여 해당 영화의 리뷰 상세 정보를 조회합니다.")
     @GetMapping("/{movieId}")
-    public ResponseEntity<ApiResponse<ReviewResponseDTO>> getReviews(
+    public ResponseEntity<ReviewResponseDTO> getReviews(
             @PathVariable Long movieId,
             @RequestParam("reviewId") Long reviewId) {
         try {
-            ApiResponse<ReviewResponseDTO> data = reviewService.getReview(movieId, reviewId);
+            ReviewResponseDTO data = reviewService.getReview(movieId, reviewId);
             return ResponseEntity.status(HttpStatus.OK).body(data);
         } catch (Exception e) {
             log.error(e.getMessage()); // log.info & log.error를 잘 이용하여 유지, 보수성을 높이는 것을 목적으로 한다.
@@ -37,10 +38,10 @@ public class ReviewController {
     }
 
     @Operation(summary = "전체 리뷰 목록 조회", description = "삭제되지 않은 모든 영화의 리뷰를 반환합니다.")
-    @GetMapping
-    public ResponseEntity<List<ReviewsResponseDTO>> getAllReviews() {
+    @GetMapping("/all/{movieId}")
+    public ResponseEntity<List<ReviewsResponseDTO>> getAllReviews(@PathVariable Long movieId) {
         try {
-            List<ReviewsResponseDTO> data = reviewService.getReviews();
+            List<ReviewsResponseDTO> data = reviewService.getReviews(movieId);
             return ResponseEntity.status(HttpStatus.OK).body(data);
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -50,7 +51,7 @@ public class ReviewController {
 
     @Operation(summary = "리뷰 작성", description = "특정 영화(movieId)에 새로운 리뷰를 작성합니다.")
     @PostMapping("/{movieId}")
-    public ResponseEntity<ReviewDTO> save(@PathVariable Long movieId, @RequestBody ReviewRequestDTO dto) {
+    public ResponseEntity<ReviewDTO> save(@PathVariable Long movieId, @RequestBody @Valid ReviewRequestDTO dto) {
         try {
             ReviewDTO response = reviewService.saveReview(movieId, dto);
             return ResponseEntity.status(HttpStatus.OK).body(response);

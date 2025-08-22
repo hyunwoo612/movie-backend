@@ -6,22 +6,21 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.sql.Time;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+@Builder
 @Entity
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Table(name = "movie")
@@ -39,13 +38,12 @@ public class Movie {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)
     @Schema(description = "영화 개봉일", example = "2010-07-16")
-    private Date movie_date; // 영화 개봉일
+    private LocalDate movie_date; // 영화 개봉일
 
     @JsonFormat(pattern = "HH:mm:ss")
     @Column(nullable = false)
     @Schema(description = "상영 시간", example = "02:28:00")
-    private Time movie_time;
-    // 상영 시간
+    private LocalTime movie_time; // 상영 시간
 
     @Column(nullable = false)
     @Schema(description = "감독명", example = "Christopher Nolan")
@@ -65,6 +63,17 @@ public class Movie {
     @Schema(description = "평점", example = "0.0")
     private double movie_rating; // 평점
 
+    @Column(nullable = false)
+    @Schema(description = "장르", example = "로맨스, 코미디")
+    private String movie_genre;
+
+    @Column(nullable = false)
+    @Schema(description = "영화 설명", example = "이 영화는 옛날 옛적 부터...")
+    private String movie_description;
+
+    @Column(nullable = true)
+    private String movie_image;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
@@ -75,6 +84,10 @@ public class Movie {
 
     @Column(name = "deleted_at")
     private Timestamp deletedAt; // 데이터 삭제 시간
+
+    @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Image> images = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "movie")
     @JsonManagedReference

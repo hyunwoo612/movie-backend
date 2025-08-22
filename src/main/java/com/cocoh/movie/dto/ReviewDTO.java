@@ -10,6 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReviewDTO {
+    private String name;
     private String review;
     private double rating;
+    private Long reviewId;
 }

@@ -4,6 +4,7 @@ package com.cocoh.movie.controller;
 
 import com.cocoh.movie.Entity.Movie;
 import com.cocoh.movie.dto.MovieListResponse;
+import com.cocoh.movie.dto.MovieRequestDto;
 import com.cocoh.movie.dto.MovieUpdateRequest;
 import com.cocoh.movie.repository.MovieRepository;
 import com.cocoh.movie.service.MovieService;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -46,9 +48,9 @@ public class MovieController {
 
     @Operation(summary = "영화 게시판 작성", description = "새로운 영화를 게시판에 게시합니다.")
     @PostMapping
-    public ResponseEntity<Movie> save(@RequestBody Movie movie) {
-        Movie response = movieRepository.save(movie);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<Movie> save(@ModelAttribute MovieRequestDto movieDto, @RequestParam(value = "images", required = false) List<MultipartFile> images) {  // DTO → Entity
+        Movie saved = movieService.createMovie(movieDto, images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @Operation(summary = "영화 게시판 수정", description = "영화 게시판을 수정 합니다.")

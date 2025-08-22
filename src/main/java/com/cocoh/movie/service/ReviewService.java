@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -28,6 +27,7 @@ public class ReviewService {
         }
 
         Review review = Review.builder()
+                .name(dto.getName())
                 .review(dto.getReview())
                 .rating(dto.getRating())
                 .movie(movie)
@@ -47,10 +47,10 @@ public class ReviewService {
 
         movieRepository.save(movie);
 
-        return new ReviewDTO(savedReview.getReview(), savedReview.getRating());
+        return new ReviewDTO(savedReview.getName(), savedReview.getReview(), savedReview.getRating(), savedReview.getId());
     }
 
-    public ApiResponse<ReviewResponseDTO> getReview(Long movieId, Long reviewId) {
+    public ReviewResponseDTO getReview(Long movieId, Long reviewId) {
         Movie movie = movieRepository.findByIdAndDeletedAtIsNull(movieId);
 
         Review review = reviewRepository.findByIdAndDeletedAtIsNull(reviewId);
@@ -63,54 +63,40 @@ public class ReviewService {
             throw new RuntimeException("Review not found");
         }
 
-        ReviewDTO reviewDTO = new ReviewDTO(review.getReview(), review.getRating());
-
         ReviewResponseDTO responseDTO = new ReviewResponseDTO(
-                movie.getId(),
-                movie.getMovie_name(),
-                List.of(reviewDTO), // 단일 리뷰도 리스트로 감싸기
-                movie.getCreatedAt(),
-                movie.getUpdatedAt()
+                review.getName(),
+                review.getReview(),
+                review.getRating(),
+                reviewId
         );
 
-        return new ApiResponse<>(
-                200,
-                responseDTO
-        );
+        return responseDTO;
     }
 
 
-    public List<ReviewsResponseDTO> getReviews() {
-        List<Movie> movies = movieRepository.findByDeletedAtIsNull();
+    public List<ReviewsResponseDTO> getReviews(Long movieId) {
+        Movie movie = movieRepository.findByIdAndDeletedAtIsNull(movieId);
 
-        List<Review> reviews = reviewRepository.findByDeletedAtIsNull();
-
-        if (movies == null) {
-            return new ArrayList<>();
+        if (movie == null) {
+            throw new RuntimeException("Movie not found");
         }
 
-        List<ReviewsResponseDTO> response = movies.stream()
-                .map(movie -> {
-                    List<ReviewDTO> reviewDTOs = reviews.stream()
-                            .filter(r -> r.getMovie().getId().equals(movie.getId()))
-                            .map(r -> new ReviewDTO(r.getReview(), r.getRating()))
-                            .toList();
+        List<Review> reviews = reviewRepository.findByMovieIdAndDeletedAtIsNull(movieId);
 
-                    return new ReviewsResponseDTO(
-                            movie.getId(),
-                            movie.getMovie_name(),
-                            reviewDTOs,
-                            movie.getCreatedAt()
-                    );
-                })
+        List<ReviewDTO> reviewDTOList = reviews.stream()
+                .map(r -> new ReviewDTO(r.getName(), r.getReview(), r.getRating(), r.getId()))
                 .toList();
 
-        try {
-            return response;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        ReviewsResponseDTO responseDTO = new ReviewsResponseDTO(
+                movie.getId(),
+                movie.getMovie_name(),
+                reviewDTOList,
+                movie.getCreatedAt()
+        );
+
+        return List.of(responseDTO);
     }
+
 
     public Review updateReview(Long movieId, Long reviewId, ReviewRequestDTO request) {
         Movie movie = movieRepository.findByIdAndDeletedAtIsNull(movieId);
