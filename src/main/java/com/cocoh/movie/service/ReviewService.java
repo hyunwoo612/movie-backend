@@ -37,7 +37,9 @@ public class ReviewService {
 
         movie.getReviews().add(savedReview);
 
-        movie.setMovie_review_count(movie.getReviews().size());
+        movie.setMovie_review_count(movie.getReviews().stream()
+                .filter(r -> r.getDeletedAt() == null)
+                .count());
         movie.setMovie_rating(
                 movie.getReviews().stream()
                         .mapToDouble(Review::getRating)

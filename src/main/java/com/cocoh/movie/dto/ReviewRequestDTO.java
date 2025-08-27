@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class ReviewRequestDTO {
 
     @NotBlank
-    @Size(min = 10, max = 30)
+    @Size(min = 3, max = 15)
     @Schema(description = "리뷰 작성자명", example = "김주오")
     private String name;
 

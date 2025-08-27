@@ -2,6 +2,7 @@ package com.cocoh.movie.Entity;
 
 /* 2025-08-20 Movie 엔티티 구현 - 최현우 - */
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -45,14 +46,16 @@ public class Movie {
     @Schema(description = "상영 시간", example = "02:28:00")
     private LocalTime movie_time; // 상영 시간
 
-    @Column(nullable = false)
     @Schema(description = "감독명", example = "Christopher Nolan")
-    private String movie_director; // 감독명
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "director_id") // 외래키 컬럼명
+    @JsonBackReference
+    private Director director;
 
     @Column
     @ColumnDefault("0")
     @Schema(description = "리뷰 수", example = "1240")
-    private Integer movie_review_count; // 리뷰 수
+    private Long movie_review_count; // 리뷰 수
 
     @Column(nullable = false)
     @Schema(description = "출연진 리스트", example = "Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page")

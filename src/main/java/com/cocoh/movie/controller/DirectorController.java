@@ -8,11 +8,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/Director")
+@RequestMapping("/api/director")
 @RequiredArgsConstructor
 public class DirectorController {
 
@@ -27,8 +28,8 @@ public class DirectorController {
     }
 
     @PostMapping
-    public ResponseEntity<Director> saveDirector(@RequestBody DirectorDto dto) {
-        Director save = directorService.saveDirector(dto);
+    public ResponseEntity<Director> saveDirector(@ModelAttribute DirectorDto dto, @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+        Director save = directorService.saveDirector(dto, images);
         return ResponseEntity.status(HttpStatus.CREATED).body(save);
     }
 

@@ -5,6 +5,7 @@ package com.cocoh.movie.controller;
 import com.cocoh.movie.Entity.Movie;
 import com.cocoh.movie.dto.MovieListResponse;
 import com.cocoh.movie.dto.MovieRequestDto;
+import com.cocoh.movie.dto.MovieResponseDto;
 import com.cocoh.movie.dto.MovieUpdateRequest;
 import com.cocoh.movie.repository.MovieRepository;
 import com.cocoh.movie.service.MovieService;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,14 +25,12 @@ import java.util.List;
 
 @Tag(name = "Movie", description = "영화 게시판 입니다.")
 @RestController
-@RequestMapping("/movie")
+@RequestMapping("/api/movie")
 @RequiredArgsConstructor
 @Slf4j
 public class MovieController {
 
     private final MovieService movieService;
-
-    private final MovieRepository movieRepository;
 
     @Operation(summary = "영화 게시판 목록 조회", description = "영화 게시판의 전체 목록을 조회합니다.")
     @GetMapping("/list")
@@ -41,8 +41,8 @@ public class MovieController {
 
     @Operation(summary = "영화 게시판 상세 조회", description = "영화 게시판을 상세 조회합니다.")
     @GetMapping("/{id}")
-    public ResponseEntity<Movie> getMovie(@PathVariable Long id) {
-        Movie movie = movieRepository.findByIdAndDeletedAtIsNull(id);
+    public ResponseEntity<MovieResponseDto> getMovie(@PathVariable Long id) {
+        MovieResponseDto movie = movieService.findMovie(id);
         return ResponseEntity.status(HttpStatus.OK).body(movie);
     }
 

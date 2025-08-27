@@ -31,6 +31,9 @@ public class MovieRequestDto {
     @Schema(description = "감독명", example = "Christopher Nolan")
     private String movie_director;
 
+    @Schema(description = "감독 ID", example = "1")
+    private Long director_id;
+
     @Schema(description = "출연진 리스트", example = "Leonardo DiCaprio, Joseph Gordon-Levitt, Ellen Page")
     private String movie_cast_list;
 

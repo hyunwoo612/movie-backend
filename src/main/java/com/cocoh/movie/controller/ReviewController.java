@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/review")
+@RequestMapping("/api/review")
 @Tag(name = "Review", description = "리뷰 게시판 입니다.")
 @RequiredArgsConstructor
 @Slf4j

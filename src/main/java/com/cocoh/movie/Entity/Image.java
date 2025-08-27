@@ -27,13 +27,24 @@ public class Image {
     private String originName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "movie_id", nullable = false)
+    @JoinColumn(name = "movie_id")
     @JsonBackReference
     private Movie movie;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "director_id")
+    @JsonBackReference
+    private Director director;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
+
+    public Image(Director director, String fileName) {
+        this.director = director;
+        this.originName = fileName;
+        this.createdAt = new Timestamp(System.currentTimeMillis());
+    }
 
     @PrePersist
     public void onCreate() {
