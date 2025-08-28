@@ -7,6 +7,9 @@ import com.cocoh.movie.repository.MovieRepository;
 import com.cocoh.movie.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -76,22 +79,23 @@ public class ReviewService {
     }
 
 
-    public List<ReviewsResponseDTO> getReviews(Long movieId) {
+    public List<ReviewsResponseDTO> getReviews(Long movieId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
         Movie movie = movieRepository.findByIdAndDeletedAtIsNull(movieId);
 
         if (movie == null) {
             throw new RuntimeException("Movie not found");
         }
 
-        List<Review> reviews = reviewRepository.findByMovieIdAndDeletedAtIsNull(movieId);
+        Page<Review> reviews = reviewRepository.findByMovieIdAndDeletedAtIsNull(movieId, pageable);
 
-        List<ReviewDTO> reviewDTOList = reviews.stream()
-                .map(r -> new ReviewDTO(r.getName(), r.getReview(), r.getRating(), r.getId()))
-                .toList();
+        Page<ReviewDTO> reviewDTOList = reviews
+                .map(r -> new ReviewDTO(r.getName(), r.getReview(), r.getRating(), r.getId()));
 
         ReviewsResponseDTO responseDTO = new ReviewsResponseDTO(
                 movie.getId(),
-                movie.getMovie_name(),
+                movie.getMovieName(),
                 reviewDTOList,
                 movie.getCreatedAt()
         );

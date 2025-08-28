@@ -25,7 +25,7 @@ public class MovieListResponse {
         return MovieListResponse.builder()
                 .movie_id(movie.getId())
                 .movie_image(movie.getMovie_image())
-                .movie_name(movie.getMovie_name())
+                .movie_name(movie.getMovieName())
                 .movie_director(movie.getDirector().getName())
                 .movie_review_count(movie.getMovie_review_count())
                 .movie_rating(movie.getMovie_rating())

@@ -5,6 +5,7 @@ import com.cocoh.movie.dto.DirectorDto;
 import com.cocoh.movie.repository.DirectorRepository;
 import com.cocoh.movie.service.DirectorService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,12 @@ public class DirectorController {
     public ResponseEntity<List<Director>> getDirector() {
         List<Director> directors = directorRepository.findAll();
         return ResponseEntity.status(HttpStatus.OK).body(directors);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Director>> searchDirectorByName(String keyword, Pageable pageable) {
+        List<Director> directorList = directorService.searchDirectorByName(keyword, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(directorList);
     }
 
     @PostMapping

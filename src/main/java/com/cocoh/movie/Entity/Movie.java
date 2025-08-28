@@ -32,9 +32,9 @@ public class Movie {
     @Column(name = "id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "movie_name")
     @Schema(description = "영화 제목", example = "Inception")
-    private String movie_name; // 영화 제목
+    private String movieName; // 영화 제목
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)

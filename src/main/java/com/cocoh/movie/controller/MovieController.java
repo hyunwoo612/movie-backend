@@ -15,6 +15,10 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,9 +38,16 @@ public class MovieController {
 
     @Operation(summary = "영화 게시판 목록 조회", description = "영화 게시판의 전체 목록을 조회합니다.")
     @GetMapping("/list")
-    public ResponseEntity<List<MovieListResponse>> listMovies() {
-        List<MovieListResponse> movie = movieService.findAllMovies();
+    public ResponseEntity<Page<MovieListResponse>> listMovies(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+        Page<MovieListResponse> movie = movieService.findAllMovies(page, size);
         return ResponseEntity.status(HttpStatus.OK).body(movie);
+    }
+
+    @Operation(summary = "영화 게시판 목록 검색 조회", description = "영화 게시판의 전체 목록을 검색 조회합니다.")
+    @GetMapping("/list/search")
+    public ResponseEntity<List<Movie>> listSearchMovies(String keyword, @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+        List<Movie> searchList = movieService.searchMovie(keyword, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(searchList);
     }
 
     @Operation(summary = "영화 게시판 상세 조회", description = "영화 게시판을 상세 조회합니다.")
@@ -55,8 +66,8 @@ public class MovieController {
 
     @Operation(summary = "영화 게시판 수정", description = "영화 게시판을 수정 합니다.")
     @PutMapping("/{id}")
-    public ResponseEntity<Movie> update(@PathVariable Long id, @RequestBody MovieUpdateRequest movieUpdateRequest) {
-        Movie updateMovie = movieService.updateMovie(id, movieUpdateRequest);
+    public ResponseEntity<Movie> update(@PathVariable Long id, @ModelAttribute MovieUpdateRequest movieUpdateRequest, @RequestParam(value = "images", required = false) List<MultipartFile> file) {
+        Movie updateMovie = movieService.updateMovie(id, movieUpdateRequest, file);
         return ResponseEntity.ok(updateMovie);
     }
 

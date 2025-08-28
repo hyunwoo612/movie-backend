@@ -16,7 +16,11 @@ import com.cocoh.movie.repository.MovieRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -39,7 +43,7 @@ public class MovieService {
         Director director = directorRepository.findById(dto.getDirector_id()).orElseThrow(() -> new IllegalArgumentException("director not found"));
 
         Movie movie = Movie.builder()
-                .movie_name(dto.getMovie_name())
+                .movieName(dto.getMovie_name())
                 .movie_date(dto.getMovie_date())
                 .movie_time(dto.getMovie_time())
                 .director(director)
@@ -64,12 +68,17 @@ public class MovieService {
         return movie;
     }
 
-    public List<MovieListResponse> findAllMovies() {
-        List<Movie> movies = movieRepository.findByDeletedAtIsNull();
-        return movies.stream()
-                .map(MovieListResponse::from)
-                .toList();
+    public Page<MovieListResponse> findAllMovies(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Movie> movies = movieRepository.findByDeletedAtIsNull(pageable);
+
+        return movies.map(MovieListResponse::from);
     }
+
+//    public Page<MovieListResponse> findByDeletedAtIsNullContaining(String keyword, Pageable pageable) {
+//
+//    }
 
     public MovieResponseDto findMovie(Long id) {
         Movie movie = movieRepository.findByIdAndDeletedAtIsNull(id);
@@ -80,24 +89,40 @@ public class MovieService {
         return new MovieResponseDto(movie);
     }
 
-    public Movie updateMovie(Long id, MovieUpdateRequest request) {
+    public Movie updateMovie(Long id, MovieUpdateRequest request, List<MultipartFile> file) {
         Movie movie = movieRepository.findByIdAndDeletedAtIsNull(id);
+
+        if (request.getDirector_id() == null) {
+            throw new IllegalArgumentException("director not found");
+        }
+
+        Director director = directorRepository.findById(request.getDirector_id()).orElseThrow(() -> new IllegalArgumentException("director not found"));
 
         if(movie == null) {
             return null;
         }
 
-        movie.setMovie_name(request.getMovie_name());
+        movie.setMovieName(request.getMovie_name());
         movie.setMovie_time(request.getMovie_time());
 
         if (request.getMovie_director() != null) {
-            Director director = directorRepository.findById(request.getMovie_director())
-                    .orElseThrow(() -> new RuntimeException("Director not found"));
             movie.setDirector(director);
         }
 
-        movie.setMovie_review_count(request.getMovie_review_count());
         movie.setMovie_cast_list(request.getMovie_cast_list());
+
+        movie.setMovie_image(null);
+
+        movieRepository.save(movie);
+
+        String movieitem = "movie";
+
+        if (file != null && !file.isEmpty()) {
+            List<String> savedImagePaths = imageService.uploadMovieImage(movie, file, movieitem);
+            // 첫 번째 이미지 경로를 movie_image에 저장
+            movie.setMovie_image(savedImagePaths.get(0));
+            movieRepository.save(movie);
+        }
 
         return movieRepository.save(movie);
     }
@@ -106,6 +131,12 @@ public class MovieService {
         Movie movie = movieRepository.findById(id).orElseThrow(() -> new RuntimeException("movie not found"));
         movie.softDelete();
         movieRepository.save(movie);
+    }
+
+    public List<Movie> searchMovie(String keyword, Pageable pageable) {
+        List<Movie> movieList = movieRepository.findByMovieNameContainingAndDeletedAtIsNull(keyword, pageable);
+
+        return movieList;
     }
 
 }

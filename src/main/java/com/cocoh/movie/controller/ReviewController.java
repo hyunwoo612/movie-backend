@@ -39,9 +39,9 @@ public class ReviewController {
 
     @Operation(summary = "전체 리뷰 목록 조회", description = "삭제되지 않은 모든 영화의 리뷰를 반환합니다.")
     @GetMapping("/all/{movieId}")
-    public ResponseEntity<List<ReviewsResponseDTO>> getAllReviews(@PathVariable Long movieId) {
+    public ResponseEntity<List<ReviewsResponseDTO>> getAllReviews(@PathVariable Long movieId, @RequestParam int page, @RequestParam int size) {
         try {
-            List<ReviewsResponseDTO> data = reviewService.getReviews(movieId);
+            List<ReviewsResponseDTO> data = reviewService.getReviews(movieId, page, size);
             return ResponseEntity.status(HttpStatus.OK).body(data);
         } catch (Exception e) {
             log.error(e.getMessage());

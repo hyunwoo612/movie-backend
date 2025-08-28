@@ -4,6 +4,7 @@ import com.cocoh.movie.Entity.Director;
 import com.cocoh.movie.dto.DirectorDto;
 import com.cocoh.movie.repository.DirectorRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,6 +40,12 @@ public class DirectorService {
         Director saved = directorRepository.save(director);
 
         return saved;
+    }
+
+    public List<Director> searchDirectorByName(String keyword, Pageable pageable) {
+        List<Director> directorList = directorRepository.findByNameContaining(keyword, pageable);;
+
+        return directorList;
     }
 
 }

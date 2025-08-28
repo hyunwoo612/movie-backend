@@ -4,9 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Page;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -15,6 +15,6 @@ import java.util.List;
 public class ReviewsResponseDTO {
     private Long movieId;
     private String movieName;
-    private List<ReviewDTO> movieReviewList;
+    private Page<ReviewDTO> movieReviewList;
     private Timestamp createdAt;
 }

@@ -49,10 +49,12 @@ public class WebSecurityConfig {
                 // 이 메서드를 사용하여 HTTP 요청에 대한 인가 설정을 구성하는 데 사용됩니다.
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                mvc.matcher(OPTIONS, "/api/**"),
                                 mvc.matcher("/api/login/**"),
                                 mvc.matcher("/api/signup"),
-                                mvc.matcher("/api/movie/list"),
-                                mvc.matcher("/api/movie/{id}"),
+                                mvc.matcher("/api/logout"),
+                                mvc.matcher("/api/movie/list/**"),
+                                mvc.matcher(GET, "/api/movie/{id}"),
                                 mvc.matcher("/api/review/**"),
                                 mvc.matcher("/api/director/**"),
                                 mvc.matcher("/error/**")
@@ -78,10 +80,10 @@ public class WebSecurityConfig {
         PathPatternRequestMatcher.Builder mvc = PathPatternRequestMatcher.withDefaults();
 
         return web -> web.ignoring()
-                .requestMatchers(mvc.matcher("/api/movie/list"))
-                .requestMatchers(mvc.matcher("/api/movie/{id}"))
+                .requestMatchers(mvc.matcher("/api/movie/list/**"))
+                .requestMatchers(mvc.matcher(GET,"/api/movie/{id}"))
                 .requestMatchers(mvc.matcher("/api/director/**"))
-                .requestMatchers(mvc.matcher("/api/error/**"));
+                .requestMatchers(mvc.matcher("/error/**"));
     }
 
     @Bean
@@ -91,17 +93,18 @@ public class WebSecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers( "/images/**").permitAll()
-                        .requestMatchers(GET, "/api/movie/list").permitAll()
+                        .requestMatchers(GET, "/api/movie/list/**").permitAll()
                         .requestMatchers(GET, "/api/director").permitAll()
                         .requestMatchers(POST, "/api/director").permitAll()
                         .requestMatchers("/api/review/**").permitAll()
-                        
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/error/**").permitAll()
+
                         .requestMatchers(POST, "/api/movie").hasRole("ADMIN")
                         .requestMatchers(PUT, "/api/movie/**").hasRole("ADMIN")
                         .requestMatchers(PATCH, "/api/movie/**").hasRole("ADMIN")
 
 
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
 
                         .anyRequest()
                         .authenticated()

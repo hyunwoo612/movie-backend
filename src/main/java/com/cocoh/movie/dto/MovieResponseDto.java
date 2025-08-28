@@ -18,6 +18,7 @@ public class MovieResponseDto {
     LocalDate movie_date;
     LocalTime movie_time;
     String movie_director;
+    Long director_id;
     Long movie_review_count;
     String movie_cast_list;
     double movie_rating;
@@ -30,10 +31,11 @@ public class MovieResponseDto {
 
     public MovieResponseDto(Movie movie) {
         this.movie_id = movie.getId();
-        this.movie_name = movie.getMovie_name();
+        this.movie_name = movie.getMovieName();
         this.movie_date = movie.getMovie_date();
         this.movie_time = movie.getMovie_time();
         this.movie_director = movie.getDirector().getName();
+        this.director_id = movie.getDirector().getId();
         this.movie_review_count = movie.getMovie_review_count();
         this.movie_cast_list = movie.getMovie_cast_list();
         this.movie_rating = movie.getMovie_rating();

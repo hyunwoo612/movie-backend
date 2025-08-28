@@ -6,11 +6,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class CookieUtil {
 
-    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly, boolean secure) {
+    public static void addCookie(HttpServletResponse response, String name, String value, int maxAge, boolean httpOnly) {
         Cookie cookie = new Cookie(name, value);
         cookie.setMaxAge(maxAge);
         cookie.setHttpOnly(httpOnly);
-        cookie.setSecure(secure);
+        cookie.setPath("/");
+        cookie.setSecure(false);
         response.addCookie(cookie);
     }
 
